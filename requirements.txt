@@ -1,5 +1,9 @@
-# Standard library dependencies only.
-# Optional development dependencies:
+# Core web & API framework
+fastapi>=0.100.0
+uvicorn>=0.20.0
+pydantic>=2.0.0
+
+# Development & Testing
 pytest>=7.0.0
 flake8>=5.0.0
 black>=22.0.0
