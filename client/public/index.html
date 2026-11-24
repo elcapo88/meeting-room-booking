@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>MeetSol - Meeting Room & Facilities Scheduler</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1e293b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 75px; /* space for mobile nav */
+    }
+
+    /* Header */
+    header {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-icon {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .status-pill {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: #10b981;
+      border-radius: 50%;
+    }
+
+    /* Container */
+    main {
+      flex: 1;
+      max-width: 1000px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+    .page-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 22px;
+    }
+
+    /* Action Buttons */
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .btn:hover {
+      background: #273549;
+    }
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      border-radius: 8px;
+    }
+
+    /* Tabs View */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Card */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 14px;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .card:hover {
+      border-color: #475569;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .badge {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      background: #334155;
+      color: #cbd5e1;
+    }
+    .badge-accent {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+    }
+
+    /* Details List */
+    .meta-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Attendee Chips */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .chip {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .chip-remove {
+      cursor: pointer;
+      color: #f87171;
+      font-weight: bold;
+    }
+
+    /* Mobile Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+    }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+    .nav-btn.active {
+      color: var(--primary);
+    }
+    .nav-icon {
+      font-size: 1.25rem;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 16px;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #cbd5e1;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--primary);
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      left: 20px;
+      max-width: 400px;
+      margin: 0 auto;
+      background: #1e293b;
+      border: 1px solid var(--primary);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 300;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">📅</div>
+      <span>MeetSol</span>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      <span>Docker Live</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- TAB 1: SCHEDULE (Active / Calendar) -->
+    <section id="tab-schedule" class="tab-content active">
+      <h1 class="page-title">Scheduled Meetings</h1>
+      <p class="page-subtitle">Capacity-optimal room allocation & active reservations</p>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="openScheduleModal()">
+          <span>⚡</span> Schedule Meeting
+        </button>
+        <button class="btn" onclick="openDirectRoomModal()">
+          <span>🚪</span> Reserve Room by Size
+        </button>
+      </div>
+
+      <div id="scheduled-list">
+        <div class="card" style="text-align: center; color: var(--text-muted); padding: 40px;">
+          Loading scheduled meetings...
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: MEETINGS (Definitions & Attendees) -->
+    <section id="tab-meetings" class="tab-content">
+      <h1 class="page-title">Meeting Definitions</h1>
+      <p class="page-subtitle">Manage meeting rosters with automatic cascade cancellation</p>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="openDefineMeetingModal()">
+          <span>➕</span> Define New Meeting
+        </button>
+      </div>
+
+      <div id="meetings-list"></div>
+    </section>
+
+    <!-- TAB 3: ROOMS (Facility Pool) -->
+    <section id="tab-rooms" class="tab-content">
+      <h1 class="page-title">Facilities & Room Pool</h1>
+      <p class="page-subtitle">Sorted by ascending capacity for smallest-fit room assignment</p>
+
+      <div class="btn-group">
+        <button class="btn" onclick="openAddRoomModal()">
+          <span>➕</span> Add Room to Pool
+        </button>
+      </div>
+
+      <div id="rooms-list"></div>
+    </section>
+
+    <!-- TAB 4: ACTIVITY (Notifications & Post Office) -->
+    <section id="tab-activity" class="tab-content">
+      <h1 class="page-title">Post Office Dispatch Log</h1>
+      <p class="page-subtitle">Electronic invitations, retractions, and roster updates</p>
+
+      <div id="notifications-list"></div>
+    </section>
+  </main>
+
+  <!-- Bottom Mobile Navigation Bar -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('schedule', this)">
+      <span class="nav-icon">📅</span>
+      <span>Schedule</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('meetings', this)">
+      <span class="nav-icon">👥</span>
+      <span>Meetings</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('rooms', this)">
+      <span class="nav-icon">🏢</span>
+      <span>Rooms</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('activity', this)">
+      <span class="nav-icon">🔔</span>
+      <span>Activity</span>
+    </button>
+  </nav>
+
+  <!-- Toast Notification -->
+  <div id="toast"></div>
+
+  <!-- MODAL: Schedule Meeting -->
+  <div id="modal-schedule" class="modal-backdrop">
+    <div class="modal">
+      <h2 class="modal-title">Schedule a Meeting</h2>
+      <div class="form-group">
+        <label class="form-label">Select Meeting</label>
+        <select id="schedule-meeting-select" class="form-select"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Start Time</label>
+        <input type="datetime-local" id="schedule-start" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Time</label>
+        <input type="datetime-local" id="schedule-end" class="form-input">
+      </div>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+        💡 <i>The system automatically selects the smallest available room that fits all attendees.</i>
+      </p>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal('modal-schedule')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitScheduleMeeting()">Confirm Booking</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Define New Meeting -->
+  <div id="modal-define-meeting" class="modal-backdrop">
+    <div class="modal">
+      <h2 class="modal-title">Define New Meeting</h2>
+      <div class="form-group">
+        <label class="form-label">Meeting Name</label>
+        <input type="text" id="define-name" class="form-input" placeholder="e.g. Sprint Planning">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Initial Attendees (comma separated emails)</label>
+        <input type="text" id="define-attendees" class="form-input" placeholder="alice@company.com, bob@company.com">
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal('modal-define-meeting')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitDefineMeeting()">Create Meeting</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Direct Room Reservation -->
+  <div id="modal-direct-room" class="modal-backdrop">
+    <div class="modal">
+      <h2 class="modal-title">Reserve Room by Capacity</h2>
+      <div class="form-group">
+        <label class="form-label">Required Capacity (Number of people)</label>
+        <input type="number" id="direct-size" class="form-input" min="1" value="10">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Start Time</label>
+        <input type="datetime-local" id="direct-start" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Time</label>
+        <input type="datetime-local" id="direct-end" class="form-input">
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal('modal-direct-room')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitDirectRoom()">Find & Reserve Room</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Add Room -->
+  <div id="modal-add-room" class="modal-backdrop">
+    <div class="modal">
+      <h2 class="modal-title">Add Room to Facility Pool</h2>
+      <div class="form-group">
+        <label class="form-label">Room Location / Name</label>
+        <input type="text" id="room-location" class="form-input" placeholder="e.g. Conference Room 402">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Capacity (Persons)</label>
+        <input type="number" id="room-capacity" class="form-input" min="1" value="12">
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal('modal-add-room')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitAddRoom()">Add Room</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "/api";
+
+    // Navigation
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+      el.classList.add('active');
+
+      if (tabId === 'schedule') loadScheduled();
+      if (tabId === 'meetings') loadMeetings();
+      if (tabId === 'rooms') loadRooms();
+      if (tabId === 'activity') loadNotifications();
+    }
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.borderColor = isError ? 'var(--danger)' : 'var(--primary)';
+      toast.style.display = 'flex';
+      setTimeout(() => { toast.style.display = 'none'; }, 3500);
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    // Default dates (today + 1hr)
+    function setDefaultDateInputs() {
+      const now = new Date();
+      now.setMinutes(0, 0, 0);
+      now.setHours(now.getHours() + 1);
+      const startStr = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+      now.setHours(now.getHours() + 1);
+      const endStr = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+      document.getElementById('schedule-start').value = startStr;
+      document.getElementById('schedule-end').value = endStr;
+      document.getElementById('direct-start').value = startStr;
+      document.getElementById('direct-end').value = endStr;
+    }
+
+    // Load Scheduled Meetings
+    async function loadScheduled() {
+      try {
+        const res = await fetch(`${API_BASE}/facilities/scheduled`);
+        const data = await res.json();
+        const container = document.getElementById('scheduled-list');
+
+        if (!data.scheduled || data.scheduled.length === 0) {
+          container.innerHTML = `
+            <div class="card" style="text-align: center; color: var(--text-muted); padding: 40px;">
+              No meetings scheduled yet. Click <b>Schedule Meeting</b> to book an optimal room.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = data.scheduled.map(s => `
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">${s.meetingName}</h3>
+              <span class="badge badge-accent">${s.roomLocation}</span>
+            </div>
+            <div class="meta-list">
+              <div class="meta-item">🕒 ${new Date(s.startTime).toLocaleString()} &rarr; ${new Date(s.endTime).toLocaleTimeString()}</div>
+              <div class="meta-item">👥 Attendees: ${s.attendees.join(', ')} (${s.attendees.length} people)</div>
+            </div>
+            <div style="margin-top: 14px; display: flex; justify-content: flex-end;">
+              <button class="btn btn-danger btn-sm" onclick="cancelScheduled('${s.id}')">Cancel & Release Room</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        showToast("Failed to load schedule: " + err.message, true);
+      }
+    }
+
+    // Load Meetings
+    async function loadMeetings() {
+      try {
+        const res = await fetch(`${API_BASE}/meetings`);
+        const data = await res.json();
+        const container = document.getElementById('meetings-list');
+
+        if (!data.meetings || data.meetings.length === 0) {
+          container.innerHTML = `<div class="card" style="text-align: center; color: var(--text-muted); padding: 40px;">No meetings defined yet.</div>`;
+          return;
+        }
+
+        container.innerHTML = data.meetings.map(m => `
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">${m.name}</h3>
+              <span class="badge">${m.attendees.length} Attendees</span>
+            </div>
+            <div class="meta-list">
+              <div class="meta-item">Active Scheduled Occurrences: <b>${m.scheduledCount}</b></div>
+            </div>
+            <div class="chips">
+              ${m.attendees.map(att => `
+                <div class="chip">
+                  <span>${att}</span>
+                  <span class="chip-remove" onclick="removeAttendee('${m.name}', '${att}')">&times;</span>
+                </div>
+              `).join('')}
+            </div>
+            <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end;">
+              <button class="btn btn-sm" onclick="promptAddAttendee('${m.name}')">+ Add Attendee</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteMeeting('${m.name}')">Delete Meeting</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        showToast("Failed to load meetings: " + err.message, true);
+      }
+    }
+
+    // Load Rooms
+    async function loadRooms() {
+      try {
+        const res = await fetch(`${API_BASE}/rooms`);
+        const data = await res.json();
+        const container = document.getElementById('rooms-list');
+
+        container.innerHTML = data.rooms.map(r => `
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">${r.location}</h3>
+              <span class="badge badge-accent">Capacity: ${r.capacity}</span>
+            </div>
+            <div class="meta-list">
+              <div class="meta-item">Current Bookings: ${r.assignments.length}</div>
+            </div>
+            ${r.assignments.length > 0 ? `
+              <div style="margin-top: 10px; font-size: 0.8rem; color: #cbd5e1;">
+                ${r.assignments.map(a => `
+                  <div style="padding: 4px 0; border-top: 1px dashed var(--card-border);">
+                    • ${new Date(a.startTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${new Date(a.endTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} (${a.meetingName || 'Direct Booking'})
+                  </div>
+                `).join('')}
+              </div>
+            ` : '<div style="font-size: 0.8rem; color: #10b981; margin-top: 8px;">✓ Free & Available</div>'}
+          </div>
+        `).join('');
+      } catch (err) {
+        showToast("Failed to load rooms: " + err.message, true);
+      }
+    }
+
+    // Load Notifications
+    async function loadNotifications() {
+      try {
+        const res = await fetch(`${API_BASE}/facilities/notifications`);
+        const data = await res.json();
+        const container = document.getElementById('notifications-list');
+
+        if (!data.notifications || data.notifications.length === 0) {
+          container.innerHTML = `<div class="card" style="text-align: center; color: var(--text-muted); padding: 40px;">No notifications sent yet.</div>`;
+          return;
+        }
+
+        container.innerHTML = data.notifications.map(n => `
+          <div class="card">
+            <div class="card-header">
+              <h4 style="font-size: 0.95rem;">${n.subject}</h4>
+              <span class="badge">${new Date(n.sentAt).toLocaleTimeString()}</span>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px;">To: ${n.recipient}</div>
+            <div style="font-size: 0.85rem; color: #e2e8f0;">${n.message}</div>
+          </div>
+        `).join('');
+      } catch (err) {
+        showToast("Failed to load notifications: " + err.message, true);
+      }
+    }
+
+    // Actions
+    async function openScheduleModal() {
+      setDefaultDateInputs();
+      const res = await fetch(`${API_BASE}/meetings`);
+      const data = await res.json();
+      const select = document.getElementById('schedule-meeting-select');
+      select.innerHTML = data.meetings.map(m => `
+        <option value="${m.name}">${m.name} (${m.attendees.length} people)</option>
+      `).join('');
+      document.getElementById('modal-schedule').classList.add('open');
+    }
+
+    async function submitScheduleMeeting() {
+      const meetingName = document.getElementById('schedule-meeting-select').value;
+      const startTime = document.getElementById('schedule-start').value;
+      const endTime = document.getElementById('schedule-end').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/facilities/schedule-meeting`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ meetingName, startTime, endTime })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        closeModal('modal-schedule');
+        showToast(`Assigned ${data.scheduled.roomLocation} to '${meetingName}'!`);
+        loadScheduled();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    function openDirectRoomModal() {
+      setDefaultDateInputs();
+      document.getElementById('modal-direct-room').classList.add('open');
+    }
+
+    async function submitDirectRoom() {
+      const size = Number(document.getElementById('direct-size').value);
+      const startTime = document.getElementById('direct-start').value;
+      const endTime = document.getElementById('direct-end').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/facilities/schedule-room`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ size, startTime, endTime })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        closeModal('modal-direct-room');
+        showToast(`Reserved ${data.reservation.roomLocation} (Capacity ${data.reservation.capacity})!`);
+        switchTab('rooms', document.querySelectorAll('.nav-btn')[2]);
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    function openDefineMeetingModal() {
+      document.getElementById('modal-define-meeting').classList.add('open');
+    }
+
+    async function submitDefineMeeting() {
+      const name = document.getElementById('define-name').value.trim();
+      const rawAttendees = document.getElementById('define-attendees').value;
+      const attendees = rawAttendees.split(',').map(s => s.trim()).filter(Boolean);
+
+      try {
+        const res = await fetch(`${API_BASE}/meetings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, attendees })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        closeModal('modal-define-meeting');
+        showToast(`Meeting '${name}' defined!`);
+        loadMeetings();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    function openAddRoomModal() {
+      document.getElementById('modal-add-room').classList.add('open');
+    }
+
+    async function submitAddRoom() {
+      const location = document.getElementById('room-location').value.trim();
+      const capacity = Number(document.getElementById('room-capacity').value);
+
+      try {
+        const res = await fetch(`${API_BASE}/rooms`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ location, capacity })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        closeModal('modal-add-room');
+        showToast(`Added '${location}' (Capacity: ${capacity}) to Pool!`);
+        loadRooms();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    async function cancelScheduled(id) {
+      if (!confirm("Are you sure you want to cancel this meeting and release the room?")) return;
+      try {
+        const res = await fetch(`${API_BASE}/facilities/scheduled/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        showToast("Meeting canceled & room released!");
+        loadScheduled();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    async function promptAddAttendee(meetingName) {
+      const email = prompt(`Enter employee email to add to '${meetingName}':`);
+      if (!email) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/meetings/${encodeURIComponent(meetingName)}/attendees`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ employeeId: email.trim() })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        showToast(`Added ${email} to ${meetingName}`);
+        loadMeetings();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    async function removeAttendee(meetingName, employeeId) {
+      if (!confirm(`Remove ${employeeId} from '${meetingName}'?`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/meetings/${encodeURIComponent(meetingName)}/attendees/${encodeURIComponent(employeeId)}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        let msg = `Removed ${employeeId}.`;
+        if (data.cascadeCanceledInstances > 0) {
+          msg += ` Last attendee removed: ${data.cascadeCanceledInstances} future scheduled meeting(s) were canceled and rooms released.`;
+        }
+        showToast(msg);
+        loadMeetings();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    async function deleteMeeting(meetingName) {
+      if (!confirm(`Delete meeting definition '${meetingName}'? All future scheduled instances will be canceled.`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/meetings/${encodeURIComponent(meetingName)}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        showToast(`Deleted '${meetingName}'. ${data.cascadeCanceledInstances} instances canceled.`);
+        loadMeetings();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    // Initialize
+    loadScheduled();
+  </script>
+</body>
+</html>

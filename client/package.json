@@ -1,0 +1,8 @@
+{
+  "name": "meetsol-client",
+  "version": "1.0.0",
+  "description": "Cross-Platform Mobile & Web UI for MeetSol",
+  "scripts": {
+    "build": "mkdir -p dist && cp -r public/* dist/ 2>/dev/null || xcopy /E /I public dist"
+  }
+}

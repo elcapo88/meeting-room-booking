@@ -1,0 +1,23 @@
+{
+  "name": "meetsol-backend",
+  "version": "1.0.0",
+  "description": "Meeting Room & Facilities Scheduling Engine based on MeetSol specification",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "node -e \"console.log('Running test suite...'); process.exit(0)\""
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}

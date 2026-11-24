@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # MeetSol Backend API (Node.js / TypeScript)
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: meetsol-api
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # MeetSol Frontend Client (Web & Mobile PWA via Nginx Reverse Proxy)
+  web:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: meetsol-client
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+networks:
+  default:
+    name: meetsol-network
