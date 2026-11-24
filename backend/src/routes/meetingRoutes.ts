@@ -40,7 +40,7 @@ meetingRoutes.post("/", (req: Request, res: Response) => {
 // POST add attendee to meeting
 meetingRoutes.post("/:name/attendees", (req: Request, res: Response) => {
   try {
-    const meetingName = req.params.name;
+    const meetingName = Array.isArray(req.params.name) ? req.params.name[0] : req.params.name;
     const { employeeId } = req.body;
     if (!employeeId) {
       res.status(400).json({ error: "employeeId (string/email) is required" });
@@ -56,7 +56,8 @@ meetingRoutes.post("/:name/attendees", (req: Request, res: Response) => {
 // DELETE attendee from meeting
 meetingRoutes.delete("/:name/attendees/:employeeId", (req: Request, res: Response) => {
   try {
-    const { name, employeeId } = req.params;
+    const name = Array.isArray(req.params.name) ? req.params.name[0] : req.params.name;
+    const employeeId = Array.isArray(req.params.employeeId) ? req.params.employeeId[0] : req.params.employeeId;
     const result = admin.removeAttendee(name, employeeId);
     res.json({
       success: true,
@@ -71,7 +72,7 @@ meetingRoutes.delete("/:name/attendees/:employeeId", (req: Request, res: Respons
 // DELETE remove entire meeting definition
 meetingRoutes.delete("/:name", (req: Request, res: Response) => {
   try {
-    const meetingName = req.params.name;
+    const meetingName = Array.isArray(req.params.name) ? req.params.name[0] : req.params.name;
     const result = admin.removeMeeting(meetingName);
     res.json({
       success: true,

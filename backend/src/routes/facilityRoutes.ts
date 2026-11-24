@@ -63,8 +63,9 @@ facilityRoutes.post("/schedule-room", (req: Request, res: Response) => {
 // DELETE cancel a scheduled meeting
 facilityRoutes.delete("/scheduled/:id", (req: Request, res: Response) => {
   try {
-    scheduler.cancelMeeting(req.params.id);
-    res.json({ success: true, message: `Meeting instance '${req.params.id}' canceled and room released` });
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    scheduler.cancelMeeting(id);
+    res.json({ success: true, message: `Meeting instance '${id}' canceled and room released` });
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
@@ -73,7 +74,8 @@ facilityRoutes.delete("/scheduled/:id", (req: Request, res: Response) => {
 // DELETE cancel a direct room assignment
 facilityRoutes.delete("/rooms/:location/assignments/:assignmentId", (req: Request, res: Response) => {
   try {
-    const { location, assignmentId } = req.params;
+    const location = Array.isArray(req.params.location) ? req.params.location[0] : req.params.location;
+    const assignmentId = Array.isArray(req.params.assignmentId) ? req.params.assignmentId[0] : req.params.assignmentId;
     const released = scheduler.cancelRoomAssignment(location, assignmentId);
     if (!released) {
       res.status(404).json({ error: "Assignment not found or could not be released" });
