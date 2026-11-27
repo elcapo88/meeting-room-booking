@@ -5,7 +5,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy client static files
-COPY dist/ /usr/share/nginx/html/
+COPY public/ /usr/share/nginx/html/
 
 # Copy custom nginx configuration for SPA routing
 RUN printf 'server {\n\
